@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * HOOK_node_access
+ * @param $node
+ * @param $op
+ * @param $account
+ * @return string
+ */
+function custom_access_node_access($node, $op, $account) {
+    if ($op == 'view' && $node->type == 'article') {
+
+        // Запрещаем доступ неавторизованным
+        if ($account->uid === 0) {
+            return NODE_ACCESS_DENY;
+        }
+
+        // Получаем данные тукещего авторизованного пользователя
+        $user = user_load($account->uid);
+        // Текущее время timestamp
+        $current_time = time();
+
+        // Проверка даты создания аккаунта
+        if (($current_time - $user->created) <= 604800) {
+            return NODE_ACCESS_DENY;
+        } else {
+            return NODE_ACCESS_ALLOW;
+        }
+    }
+}
